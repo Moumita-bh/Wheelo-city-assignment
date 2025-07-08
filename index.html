@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Minimum Cost Tour of Indian State Capitals</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    .output {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Minimum Cost Tour of Indian State Capitals</h1>
+
+<button onclick="startTour()">Generate Tour</button>
+
+<div class="output" id="output"></div>
+
+<script>
+  const cities = [
+    "Mumbai", "Chennai", "Bengaluru", "Hyderabad", "Kolkata", "Delhi", "Jaipur", "Lucknow",
+    "Bhopal", "Patna", "Raipur", "Ranchi", "Dispur", "Itanagar", "Imphal", "Shillong",
+    "Aizawl", "Agartala", "Panaji", "Thiruvananthapuram", "Shimla", "Chandigarh",
+    "Dehradun", "Gangtok", "Bhubaneswar", "Gandhinagar", "Kohima", "Amaravati"
+  ];
+
+  const n = cities.length;
+
+  // Generate a symmetric random distance matrix
+  function generateDistanceMatrix() {
+    const matrix = Array.from({ length: n }, () => Array(n).fill(0));
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const distance = Math.floor(Math.random() * 2000) + 300;
+        matrix[i][j] = distance;
+        matrix[j][i] = distance;
+      }
+    }
+    return matrix;
+  }
+
+  const distanceMatrix = generateDistanceMatrix();
+
+  // Nearest Neighbor Algorithm
+  function nearestNeighbor(start = 0) {
+    const visited = Array(n).fill(false);
+    const tour = [start];
+    let totalDistance = 0;
+    visited[start] = true;
+    let current = start;
+
+    for (let step = 0; step < n - 1; step++) {
+      let nearest = -1;
+      let minDist = Infinity;
+
+      for (let i = 0; i < n; i++) {
+        if (!visited[i] && distanceMatrix[current][i] < minDist) {
+          minDist = distanceMatrix[current][i];
+          nearest = i;
+        }
+      }
+
+      visited[nearest] = true;
+      tour.push(nearest);
+      totalDistance += minDist;
+      current = nearest;
+    }
+
+    // Return to starting city
+    totalDistance += distanceMatrix[current][start];
+    tour.push(start);
+
+    return { tour, totalDistance };
+  }
+
+  function startTour() {
+    const startCityIndex = 0; // You can randomize this too
+    const { tour, totalDistance } = nearestNeighbor(startCityIndex);
+    const totalCost = totalDistance;
+
+    let outputHTML = `<h2> Ordered List of Cities Visited</h2>`;
+    outputHTML += `<p>${tour.map(i => cities[i]).join(" → ")}</p>`;
+    outputHTML += `<h3> Total Distance: ${totalDistance} km</h3>`;
+    outputHTML += `<h3> Total Cost: ₹${totalCost}</h3>`;
+
+    document.getElementById("output").innerHTML = outputHTML;
+  }
+</script>
+
+</body>
+</html>
